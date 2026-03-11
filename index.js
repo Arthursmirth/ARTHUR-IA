@@ -1,41 +1,49 @@
+require('dotenv').config();
 const { Client, LocalAuth } = require('whatsapp-web.js');
 const { HfInference } = require('@huggingface/inference');
+const qrcode = require('qrcode-terminal');
 
-// 1. TON TOKEN HUGGING FACE ICI
-const HF_TOKEN = 'TON_TOKEN_HF_ICI'; // Remplace par le jeton que tu viens de créer
-const hf = new HfInference(HF_TOKEN);
+// 1. Initialisation IA
+const hf = new HfInference(process.env.HF_TOKEN);
 
+// 2. CONFIGURATION SPÉCIALE TERMUX (Très important)
 const client = new Client({
     authStrategy: new LocalAuth(),
-    puppeteer: { args: ['--no-sandbox', '--disable-setuid-sandbox'] }
+    puppeteer: {
+        headless: true,
+        // Ce chemin est obligatoire pour trouver Chrome sur Android/Termux
+        executablePath: '/data/data/com.termux/files/usr/bin/chromium', 
+        args: [
+            '--no-sandbox',
+            '--disable-setuid-sandbox',
+            '--disable-dev-shm-usage',
+            '--disable-gpu'
+        ],
+    }
 });
 
-// 2. TON NUMÉRO DE TÉLÉPHONE ICI
-client.on('qr', async () => {
-    const myNumber = 'TON_NUMERO_ICI'; // Format : indicatif pays + numéro (ex: 225...)
+// 3. Connexion (QR Code + Jumelage)
+client.on('qr', async (qr) => {
+    qrcode.generate(qr, { small: true });
     try {
-        const pairingCode = await client.requestPairingCode(myNumber);
+        const pairingCode = await client.requestPairingCode(process.env.MY_NUMBER);
         console.log('-------------------------------------------');
-        console.log('👉 TON CODE DE JUMELAGE WHATSAPP : ', pairingCode);
+        console.log('👉 CODE DE JUMELAGE : ', pairingCode);
         console.log('-------------------------------------------');
     } catch (err) {
-        console.error("Erreur de code :", err);
+        console.error("Erreur jumelage :", err);
     }
 });
 
 client.on('ready', () => {
-    console.log('✅ ARTHUR IA (VERSION HUGGING FACE) EST EN LIGNE !');
+    console.log('✅ ARTHUR13 EST EN LIGNE SUR TERMUX !');
 });
 
-// 3. RÉPONSE AUTOMATIQUE
+// 4. Réponse IA
 client.on('message', async (msg) => {
     try {
         const chat = await msg.getChat();
-        
-        // On ne répond que si ce n'est pas un groupe
         if (!chat.isGroup) {
-            
-            // On utilise le modèle Llama-3 via Hugging Face
             const response = await hf.chatCompletion({
                 model: "meta-llama/Meta-Llama-3-8B-Instruct",
                 messages: [
@@ -45,13 +53,11 @@ client.on('message', async (msg) => {
                 max_tokens: 500,
             });
 
-            const replyText = response.choices[0].message.content;
+            const replyText = response.choices.message.content;
             await msg.reply(replyText);
         }
     } catch (error) {
-        console.error("Erreur Hugging Face:", error.message);
-        // Optionnel : prévenir l'utilisateur en cas d'erreur
-        // await msg.reply("Désolé, mon cerveau a eu un petit bug technique !");
+        console.error("Erreur IA:", error.message);
     }
 });
 
