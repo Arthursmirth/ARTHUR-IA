@@ -1,23 +1,18 @@
 const { Client, LocalAuth } = require('whatsapp-web.js');
-const { Groq } = require('groq-sdk');
+const { HfInference } = require('@huggingface/inference');
 
-// 1. TA CLÉ API GROQ ICI (Remplace entre les guillemets)
-const MY_GROQ_KEY = 'MET_TA_CLE_GROQ_ICI_QUI_COMMENCE_PAR_GSK';
-
-const groq = new Groq({ apiKey: MY_GROQ_KEY });
+// 1. TON TOKEN HUGGING FACE ICI
+const HF_TOKEN = 'TON_TOKEN_HF_ICI'; // Remplace par le jeton que tu viens de créer
+const hf = new HfInference(HF_TOKEN);
 
 const client = new Client({
     authStrategy: new LocalAuth(),
-    puppeteer: {
-        args: ['--no-sandbox', '--disable-setuid-sandbox']
-    }
+    puppeteer: { args: ['--no-sandbox', '--disable-setuid-sandbox'] }
 });
 
 // 2. TON NUMÉRO DE TÉLÉPHONE ICI
 client.on('qr', async () => {
-    // Format : indicatif pays + numéro sans le + (ex: 2250701020304)
-    const myNumber = 'TON_NUMERO_ICI'; 
-    
+    const myNumber = 'TON_NUMERO_ICI'; // Format : indicatif pays + numéro (ex: 225...)
     try {
         const pairingCode = await client.requestPairingCode(myNumber);
         console.log('-------------------------------------------');
@@ -29,25 +24,34 @@ client.on('qr', async () => {
 });
 
 client.on('ready', () => {
-    console.log('✅ ARTHUR IA EST EN LIGNE !');
+    console.log('✅ ARTHUR IA (VERSION HUGGING FACE) EST EN LIGNE !');
 });
 
 // 3. RÉPONSE AUTOMATIQUE
 client.on('message', async (msg) => {
     try {
         const chat = await msg.getChat();
+        
+        // On ne répond que si ce n'est pas un groupe
         if (!chat.isGroup) {
-            const completion = await groq.chat.completions.create({
+            
+            // On utilise le modèle Llama-3 via Hugging Face
+            const response = await hf.chatCompletion({
+                model: "meta-llama/Meta-Llama-3-8B-Instruct",
                 messages: [
                     { role: "system", content: "Tu es Arthur IA, un assistant intelligent sur WhatsApp." },
                     { role: "user", content: msg.body }
                 ],
-                model: "llama3-8b-8192",
+                max_tokens: 500,
             });
-            await msg.reply(completion.choices.message.content);
+
+            const replyText = response.choices[0].message.content;
+            await msg.reply(replyText);
         }
     } catch (error) {
-        console.error("Erreur IA:", error);
+        console.error("Erreur Hugging Face:", error.message);
+        // Optionnel : prévenir l'utilisateur en cas d'erreur
+        // await msg.reply("Désolé, mon cerveau a eu un petit bug technique !");
     }
 });
 
