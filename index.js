@@ -1,49 +1,54 @@
-const { default: makeWASocket, useMultiFileAuthState, delay } = require("@whiskeysockets/baileys");
-const pino = require("pino");
-const { OpenAI } = require("openai");
-require("dotenv").config();
+const { Client, LocalAuth } = require('whatsapp-web.js');
+const { Groq } = require('groq-sdk');
 
-const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+// 1. TA CLÉ API GROQ ICI (Remplace entre les guillemets)
+const MY_GROQ_KEY = 'MET_TA_CLE_GROQ_ICI_QUI_COMMENCE_PAR_GSK';
 
-async function startArthur() {
-    const { state, saveCreds } = await useMultiFileAuthState('session_auth');
-    
-    const client = makeWASocket({
-        auth: state,
-        printQRInTerminal: false, // On utilise le pairing code à la place
-        logger: pino({ level: "silent" })
-    });
+const groq = new Groq({ apiKey: MY_GROQ_KEY });
 
-    // --- CONFIGURATION DU NUMÉRO ---
-    let phoneNumber = "225XXXXXXXX"; // METTEZ VOTRE NUMÉRO ICI (format international)
-
-    if (!client.authState.creds.registered) {
-        await delay(1500);
-        const code = await client.requestPairingCode(phoneNumber);
-        console.log(`\n👉 VOTRE CODE DE CONNEXION : ${code}\n`);
+const client = new Client({
+    authStrategy: new LocalAuth(),
+    puppeteer: {
+        args: ['--no-sandbox', '--disable-setuid-sandbox']
     }
+});
 
-    client.ev.on("creds.update", saveCreds);
+// 2. TON NUMÉRO DE TÉLÉPHONE ICI
+client.on('qr', async () => {
+    // Format : indicatif pays + numéro sans le + (ex: 2250701020304)
+    const myNumber = 'TON_NUMERO_ICI'; 
+    
+    try {
+        const pairingCode = await client.requestPairingCode(myNumber);
+        console.log('-------------------------------------------');
+        console.log('👉 TON CODE DE JUMELAGE WHATSAPP : ', pairingCode);
+        console.log('-------------------------------------------');
+    } catch (err) {
+        console.error("Erreur de code :", err);
+    }
+});
 
-    client.ev.on("messages.upsert", async (m) => {
-        const msg = m.messages[0];
-        if (!msg.message || msg.key.fromMe) return;
+client.on('ready', () => {
+    console.log('✅ ARTHUR IA EST EN LIGNE !');
+});
 
-        const text = msg.message.conversation || msg.message.extendedTextMessage?.text;
-        const from = msg.key.remoteJid;
-
-        if (text) {
-            console.log(`Message reçu : ${text}`);
-            // Appel à ChatGPT
-            const response = await openai.chat.completions.create({
-                model: "gpt-3.5-turbo",
-                messages:,
+// 3. RÉPONSE AUTOMATIQUE
+client.on('message', async (msg) => {
+    try {
+        const chat = await msg.getChat();
+        if (!chat.isGroup) {
+            const completion = await groq.chat.completions.create({
+                messages: [
+                    { role: "system", content: "Tu es Arthur IA, un assistant intelligent sur WhatsApp." },
+                    { role: "user", content: msg.body }
+                ],
+                model: "llama3-8b-8192",
             });
-
-            const reply = response.choices[0].message.content;
-            await client.sendMessage(from, { text: reply });
+            await msg.reply(completion.choices.message.content);
         }
-    });
-}
+    } catch (error) {
+        console.error("Erreur IA:", error);
+    }
+});
 
-startArthur();
+client.initialize();
