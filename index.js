@@ -1,52 +1,34 @@
-require('dotenv').config();
-const { Client, LocalAuth } = require('whatsapp-web.js');
-const { HfInference } = require('@huggingface/inference');
-const qrcode = require('qrcode-terminal');
+const puppeteer = require('puppeteer');
 
-const hf = new HfInference(process.env.HF_TOKEN);
+async function launchArthur() {
+  console.log("Démarrage de l'instance ARTHUR-IA...");
+  
+  try {
+    const browser = await puppeteer.launch({
+      // Options obligatoires pour éviter les erreurs sur Render
+      headless: "new",
+      args: [
+        '--no-sandbox',
+        '--disable-setuid-sandbox',
+        '--disable-dev-shm-usage',
+        '--single-process',
+        '--no-zygote'
+      ],
+      // Utilise le chemin d'installation automatique de Puppeteer
+      executablePath: process.env.PUPPETEER_EXECUTABLE_PATH || null,
+    });
 
-const client = new Client({
-    authStrategy: new LocalAuth(),
-    puppeteer: {
-        headless: true,
-        // Sur Render, pas besoin de chemin manuel, Puppeteer gère
-        args: [
-            '--no-sandbox',
-            '--disable-setuid-sandbox',
-            '--disable-dev-shm-usage',
-            '--disable-gpu'
-        ],
-    }
-});
+    const page = await browser.newPage();
+    await page.goto('https://www.google.com'); // Test de connexion
+    
+    console.log("✅ ARTHUR-IA est opérationnel sur Render !");
+    
+    // Insérez la suite de votre code ici (Bot, IA, etc.)
 
-client.on('qr', (qr) => {
-    // Le QR Code s'affichera dans les "Logs" de Render
-    qrcode.generate(qr, { small: true });
-    console.log("Scannez le QR Code ci-dessus dans les logs de Render !");
-});
+  } catch (error) {
+    console.error("❌ Erreur critique au lancement :", error);
+    process.exit(1); // Force l'arrêt pour voir l'erreur dans les logs
+  }
+}
 
-client.on('ready', () => {
-    console.log('✅ ARTHUR IA EST EN LIGNE SUR RENDER !');
-});
-
-client.on('message', async (msg) => {
-    try {
-        const chat = await msg.getChat();
-        if (!chat.isGroup) {
-            const response = await hf.chatCompletion({
-                model: "meta-llama/Meta-Llama-3-8B-Instruct",
-                messages: [
-                    { role: "system", content: "Tu es Arthur IA, un assistant intelligent sur WhatsApp." },
-                    { role: "user", content: msg.body }
-                ],
-                max_tokens: 500,
-            });
-
-            await msg.reply(response.choices[0].message.content);
-        }
-    } catch (error) {
-        console.error("Erreur IA:", error.message);
-    }
-});
-
-client.initialize();
+launchArthur();
