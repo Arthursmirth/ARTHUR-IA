@@ -3,16 +3,13 @@ const { Client, LocalAuth } = require('whatsapp-web.js');
 const { HfInference } = require('@huggingface/inference');
 const qrcode = require('qrcode-terminal');
 
-// 1. Initialisation IA
 const hf = new HfInference(process.env.HF_TOKEN);
 
-// 2. CONFIGURATION SPÉCIALE TERMUX (Très important)
 const client = new Client({
     authStrategy: new LocalAuth(),
     puppeteer: {
         headless: true,
-        // Ce chemin est obligatoire pour trouver Chrome sur Android/Termux
-        executablePath: '/data/data/com.termux/files/usr/bin/chromium', 
+        // Sur Render, pas besoin de chemin manuel, Puppeteer gère
         args: [
             '--no-sandbox',
             '--disable-setuid-sandbox',
@@ -22,24 +19,16 @@ const client = new Client({
     }
 });
 
-// 3. Connexion (QR Code + Jumelage)
-client.on('qr', async (qr) => {
+client.on('qr', (qr) => {
+    // Le QR Code s'affichera dans les "Logs" de Render
     qrcode.generate(qr, { small: true });
-    try {
-        const pairingCode = await client.requestPairingCode(process.env.MY_NUMBER);
-        console.log('-------------------------------------------');
-        console.log('👉 CODE DE JUMELAGE : ', pairingCode);
-        console.log('-------------------------------------------');
-    } catch (err) {
-        console.error("Erreur jumelage :", err);
-    }
+    console.log("Scannez le QR Code ci-dessus dans les logs de Render !");
 });
 
 client.on('ready', () => {
-    console.log('✅ ARTHUR13 EST EN LIGNE SUR TERMUX !');
+    console.log('✅ ARTHUR IA EST EN LIGNE SUR RENDER !');
 });
 
-// 4. Réponse IA
 client.on('message', async (msg) => {
     try {
         const chat = await msg.getChat();
@@ -53,8 +42,7 @@ client.on('message', async (msg) => {
                 max_tokens: 500,
             });
 
-            const replyText = response.choices.message.content;
-            await msg.reply(replyText);
+            await msg.reply(response.choices[0].message.content);
         }
     } catch (error) {
         console.error("Erreur IA:", error.message);
