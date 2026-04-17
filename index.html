@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FULL MÉTHODE WORKING</title>
+    <!-- Importation d'une police stylée -->
+    <link href="https://googleapis.com" rel="stylesheet">
+    <style>
+        :root {
+            --primary-red: #ff0000;
+            --dark-red: #8b0000;
+            --bg-black: #0a0a0a;
+            --text-white: #ffffff;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Roboto', sans-serif;
+            background-color: var(--bg-black);
+            color: var(--text-white);
+            overflow-x: hidden;
+        }
+
+        /* --- MENU SIDEBAR --- */
+        .sidebar {
+            height: 100%;
+            width: 0;
+            position: fixed;
+            z-index: 1000;
+            top: 0;
+            left: 0;
+            background-color: rgba(139, 0, 0, 0.95);
+            overflow-x: hidden;
+            transition: 0.5s;
+            padding-top: 60px;
+            box-shadow: 5px 0 15px rgba(255, 0, 0, 0.3);
+        }
+
+        .sidebar a {
+            padding: 15px 25px;
+            text-decoration: none;
+            font-size: 18px;
+            color: white;
+            display: block;
+            transition: 0.3s;
+            font-family: 'Orbitron', sans-serif;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .sidebar a:hover {
+            background-color: var(--primary-red);
+            padding-left: 35px;
+        }
+
+        .sidebar .closebtn {
+            position: absolute;
+            top: 10px;
+            right: 25px;
+            font-size: 36px;
+            cursor: pointer;
+        }
+
+        /* --- BOUTON MENU (3 BARRES) --- */
+        .menu-icon {
+            font-size: 30px;
+            cursor: pointer;
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            z-index: 999;
+            background: var(--primary-red);
+            padding: 5px 12px;
+            border-radius: 5px;
+            box-shadow: 0 0 10px var(--primary-red);
+        }
+
+        /* --- CONTENU PRINCIPAL --- */
+        .main-content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            text-align: center;
+        }
+
+        h1 {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 3.5rem;
+            color: var(--primary-red);
+            text-transform: uppercase;
+            letter-spacing: 5px;
+            margin-bottom: 10px;
+            text-shadow: 0 0 20px var(--primary-red);
+            animation: glow 2s infinite alternate;
+        }
+
+        @keyframes glow {
+            from { text-shadow: 0 0 10px var(--primary-red); }
+            to { text-shadow: 0 0 30px #ff4d4d; }
+        }
+
+        .subtitle {
+            font-size: 1.2rem;
+            opacity: 0.8;
+            margin-bottom: 30px;
+        }
+
+        /* --- FOOTER --- */
+        footer {
+            position: absolute;
+            bottom: 20px;
+            width: 100%;
+            text-align: center;
+            font-size: 14px;
+            letter-spacing: 2px;
+            color: var(--primary-red);
+            font-weight: bold;
+        }
+
+        .red-line {
+            width: 100px;
+            height: 4px;
+            background: var(--primary-red);
+            margin: 20px auto;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Icône du Menu -->
+    <div class="menu-icon" onclick="openNav()">&#9776;</div>
+
+    <!-- Menu Latéral -->
+    <div id="mySidebar" class="sidebar">
+        <span class="closebtn" onclick="closeNav()">&times;</span>
+        <a href="#">🛠 Tools Termux</a>
+        <a href="#">📝 Script Fake Chat</a>
+        <a href="mailto:support@votremail.com">📧 Email Support</a>
+        <a href="https://t.me/druzzdev00" target="_blank">✈ Canal Telegram</a>
+        <a href="https://whatsapp.com/channel/0029Vb6yRZ4FCCoTXfBzbD3k" target="_blank">💬 Chaine WhatsApp</a>
+        <a href="#">👑 Owner</a>
+    </div>
+
+    <!-- Contenu -->
+    <div class="main-content">
+        <h1>FULL MÉTHODE WORKING</h1>
+        <div class="red-line"></div>
+        <p class="subtitle">Accédez aux meilleurs outils et scripts de hacking éthique.</p>
+    </div>
+
+    <footer>
+        Powered by dev MICHAEL
+    </footer>
+
+    <script>
+        function openNav() {
+            document.getElementById("mySidebar").style.width = "280px";
+        }
+
+        function closeNav() {
+            document.getElementById("mySidebar").style.width = "0";
+        }
+    </script>
+
+</body>
+</html>
