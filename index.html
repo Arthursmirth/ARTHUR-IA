@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GUYTHO GAME HUB | Pro</title>
+    <link rel="stylesheet" href="https://unpkg.com/@chrisoakman/chessboardjs@1.0.0/dist/chessboard-1.0.0.min.css">
+    <link rel="stylesheet" href="style.css">
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <script src="https://unpkg.com/@chrisoakman/chessboardjs@1.0.0/dist/chessboard-1.0.0.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/chess.js/0.10.3/chess.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-slate-950 text-white min-h-screen">
+
+    <div class="container mx-auto p-4 md:p-10">
+        <header class="text-center mb-12">
+            <h1 class="guytho-title text-5xl font-black text-cyan-500 mb-2">REPÈRE DE GUYTHO</h1>
+            <p class="text-slate-500 tracking-[0.5em] text-xs uppercase">Système de jeu avancé v2.0</p>
+        </header>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-10">
+            <div class="lg:col-span-2 glass-panel p-6 rounded-3xl flex flex-col items-center shadow-2xl">
+                <div id="myBoard" class="w-full max-w-[550px] border-8 border-slate-900 rounded-lg"></div>
+                <div class="mt-8 flex items-center gap-6">
+                    <button id="resetBtn" class="btn-action bg-red-600">ABANDONNER</button>
+                    <span id="status" class="status-badge">Trait aux Blancs</span>
+                </div>
+            </div>
+
+            <div class="glass-panel p-6 rounded-3xl flex flex-col h-[600px]">
+                <div class="bot-header flex items-center gap-3 mb-6">
+                    <div class="pulse-red"></div>
+                    <h2 class="font-bold text-cyan-400">GUYTHO INTELLIGENCE</h2>
+                </div>
+                
+                <div id="chat-box" class="flex-grow overflow-y-auto mb-4 space-y-4 pr-2">
+                    <div class="msg-bot">Prêt à tester tes limites ? Joue ton coup.</div>
+                </div>
+
+                <div class="chat-input-area relative">
+                    <input type="text" id="user-input" placeholder="Parle au maître du lieu..." class="w-full">
+                    <button id="sendBtn" class="absolute right-2 top-2 bg-cyan-600 p-2 rounded-lg">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"></path></svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer class="mt-12 text-center pb-10">
+        <p class="text-slate-600 font-mono text-sm uppercase">Powered by <span class="text-white font-bold">GUYTHO</span></p>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>
